@@ -2,6 +2,8 @@ use calc::Interpreter;
 use rustyline::Editor;
 
 fn main() -> rustyline::Result<()> {
+    print_title();
+    
     let mut editor = Editor::<()>::new();
     loop {
         match Interpreter::new("rpn> ", &mut editor)?
@@ -19,4 +21,15 @@ fn main() -> rustyline::Result<()> {
         }
     }
     Ok(())
+}
+
+fn print_title() {
+   println!("\n ____________ _   _ ");
+   println!(" | ___ \\ ___ \\ \\ | |");
+   println!(" | |_/ / |_/ /  \\| |");
+   println!(" |    /|  __/| . ` |");
+   println!(" | |\\ \\| |   | |\\  |");
+   println!(" \\_| \\_\\_|   \\_| \\_/");
+   println!("      Version {} ", env!("CARGO_PKG_VERSION"));
+   println!(" -------------------\n"); 
 }

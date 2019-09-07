@@ -20,7 +20,7 @@ enum Token {
     Divide,
     Power,
     Modulus,
-    EOF,
+    Invalid,
 }
 
 impl Token {
@@ -36,7 +36,7 @@ impl Token {
             "%" => Token::Modulus,
             _ => match slice.parse::<f64>() {
                 Ok(num) => Token::Number(num),
-                Err(_) => Token::EOF,
+                Err(_) => Token::Invalid,
             },
         }
     }
@@ -46,36 +46,6 @@ impl ToString for Token {
     fn to_string(&self) -> String {
         String::from(format!("{:?}", self))
     }
-}
-
-/// Functional form of infix addition.
-fn add(x: f64, y: f64) -> f64 {
-    x + y
-}
-
-/// Functional form of infix subtraction.
-fn subtract(x: f64, y: f64) -> f64 {
-    x - y
-}
-
-/// Functional form of infix multiplication.
-fn multiply(x: f64, y: f64) -> f64 {
-    x * y
-}
-
-/// Functional form of infix division.
-fn divide(x: f64, y: f64) -> f64 {
-    x / y
-}
-
-/// Functional form of infix exponentiation.
-fn power(x: f64, y: f64) -> f64 {
-    x.powf(y)
-}
-
-/// Functional form of infix modulus.
-fn modulus(x: f64, y: f64) -> f64 {
-    x % y
 }
 
 /// Iterator over Tokens in String.
@@ -104,8 +74,6 @@ impl Iterator for Tokens {
     fn next(&mut self) -> Option<Self::Item> {
         let next_token = if self.pos < self.buffer.len() {
             Some(Token::new(&self.buffer[self.pos]))
-        } else if self.pos == self.buffer.len() {
-            Some(Token::EOF)
         } else {
             None
         };
@@ -117,8 +85,7 @@ impl Iterator for Tokens {
 
 /// Interpreter.
 pub struct Interpreter {
-    tokens: Tokens,
-    current: Option<Token>,
+    buffer: Vec<Token>,
     quit: bool,
 }
 
@@ -134,53 +101,76 @@ impl Interpreter {
             _ => false,
         };
         println!("{}===> {}{}", _YELLOW, text, _RESET);
-        Ok(Interpreter {
-            tokens: Tokens::new(text),
-            current: None,
-            quit,
-        })
+        let buffer: Vec<Token> = Tokens::new(text).collect(); 
+        Ok(Interpreter { buffer, quit })
     }
 
-    /// Iterate over tokens in user input and evaluate if a valid expression.
-    pub fn expr(&mut self) -> Result<bool, String> {
+    /// Evaluate stack.
+    pub fn expr(&self) -> Result<bool, String> {
         if self.quit {
             return Ok(true);
         }
 
-        self.current = self.tokens.next();
+        let mut stack: Vec<f64> = Vec::new();
 
-        let left = match self.current.clone() {
-            Some(token) => match token {
-                Token::Number(num) => num,
-                _ => return Err(token.to_string()),
-            },
-            None => return Err("unrecognised token".to_string()),
-        };
+        for token in &self.buffer {
+            match token {
+                Token::Number(num) => stack.push(*num),
+                Token::Add => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x + y)
+                },
+                Token::Subtract => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x - y)
+                },
+                Token::Multiply => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x * y)
+                },
+                Token::Divide => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x / y)
+                },
+                Token::Power => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x.powf(y))
+                },
+                Token::Modulus => {
+                    let (x, y) = stack.binary_pop()?;
+                    stack.push(x % y)
+                },
+                Token::Invalid => return Err("invalid input".to_string()),
+            }
+        }
 
-        self.current = self.tokens.next();
-        let op = match &self.current {
-            Some(token) => match token {
-                Token::Add => add,
-                Token::Subtract => subtract,
-                Token::Multiply => multiply,
-                Token::Divide => divide,
-                Token::Power => power,
-                Token::Modulus => modulus,
-                _ => return Err(token.to_string()),
-            },
-            None => return Err("unrecognised token".to_string()),
-        };
-
-        self.current = self.tokens.next();
-        let right = match &self.current {
-            Some(token) => match token {
-                Token::Number(num) => num,
-                _ => return Err(token.to_string()),
-            },
-            None => return Err("unrecognised token".to_string()),
-        };
-
-        println!("   = {}", op(left, *right));
+        if stack.len() == 1 {
+            match stack.pop() {
+                Some(num) => println!("   = {}", num),
+                None => return Err("invalid input".to_string())
+            }
+        } else {
+            return Err("invalid input".to_string())
+        }
+        
         Ok(false)
+    }
+}
+
+trait DoublePop {
+    fn binary_pop(&mut self) -> Result<(f64, f64), String>;
+}
+
+impl DoublePop for Vec<f64> {
+    fn binary_pop(&mut self) -> Result<(f64, f64), String> {
+        let x = match self.pop() {
+            Some(num) => num,
+            None => return Err("invalid number.".to_string())
+        };
+        let y = match self.pop() {
+            Some(num) => num,
+            None => return Err("invalid number".to_string())
+        };
+        Ok((x, y))
     }
 }
