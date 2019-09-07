@@ -1,4 +1,4 @@
-use calc::Interpreter;
+use rpn::Interpreter;
 use rustyline::Editor;
 
 fn main() -> rustyline::Result<()> {

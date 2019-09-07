@@ -17,9 +17,11 @@ See [wikipedia/Reverse_Polish_notation](https://en.wikipedia.org/wiki/Reverse_Po
 Requires an installation of [Rust](https://www.rust-lang.org/tools/install). Recommended build profile is release:
     
     $ curl https://sh.rustup.rs -sSf | sh         # install Rust
-    $ git clone https://github.com/drvog/yat-rs   # clone repository
-    $ cd yat-rs                                   # change into source directory
+    $ git clone https://github.com/drvog/rpn      # clone repository
+    $ cd rpn                                      # change into source directory
     $ cargo run --release                         # compile and run
+
+**rpn** should run on UNIX-like (Linux, MacOS, BSD, etc.) terminal emulators and Windows 10+ (CMD.EXE or Powershell).
 
 ## Usage
 
