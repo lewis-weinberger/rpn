@@ -1,5 +1,7 @@
-# **rpn** --- **r**usty **p**something **n**something
+# rpn --- rusty p-something n-something*
 > a command-line RPN calculator implemented in Rust
+
+*to be backronym'd!
 
 ## About
 Post-fix notation, also called Reverse Polish Notation (RPN) after its creator Jan Łukasiewicz, is a mathematical notation in which operators (such as `+` or `%`) follow their operands. For example, the infix expression `3 + 4` can be written in RPN as `3 4 +`. For operators with fixed _arity_ (fixed number of operands) this notation uniquely describes the expression without the need for parentheses to distinguish the order of operations.
@@ -7,7 +9,9 @@ Post-fix notation, also called Reverse Polish Notation (RPN) after its creator J
     [postfix] A B C D * + / == (A (B (C D *) +) /) == [infix] A / (B + (C * D))
     [postfix] A B * C + D / == (((A B *) C +) D /) == [infix] ((A * B) + C) / D
     
-**rpn** uses binary operators, i.e. all operations act on two operands. See e.g. [wikipedia](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more info. 
+**rpn** uses binary operators, i.e. all operations act on two operands.
+
+See [wikipedia/Reverse_Polish_notation](https://en.wikipedia.org/wiki/Reverse_Polish_notation) for more info. 
 
 ## Installation
 Requires an installation of [Rust](https://www.rust-lang.org/tools/install). Recommended build profile is release:
